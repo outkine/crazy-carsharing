@@ -1,0 +1,14 @@
+{ "columns":8,
+ "image":"roadsheet.png",
+ "imageheight":512,
+ "imagewidth":512,
+ "margin":0,
+ "name":"roadsheet",
+ "spacing":0,
+ "tilecount":64,
+ "tiledversion":"1.2.1",
+ "tileheight":60,
+ "tilewidth":60,
+ "type":"tileset",
+ "version":1.2
+}
