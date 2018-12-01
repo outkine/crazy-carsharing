@@ -1,14 +1,15 @@
 {
   "name": "reprocessing-example",
   "scripts": {
-    "dev": "bsb -make-world -backend bytecode && ./lib/bs/bytecode/dev.byte",
-    "build": "bsb -make-world",
+    "start:byte": "bsb -make-world -backend bytecode && ./lib/bs/bytecode/dev.byte",
+    "start:web": "bsb -make-world -backend js -w",
     "clean": "bsb -clean-world"
   },
   "dependencies": {
     "reprocessing": "0.2.0"
   },
   "devDependencies": {
-    "bsb-native": "4.0.6"
+    "bsb-native": "4.0.6",
+    "webpack": "^4.26.1"
   }
 }
