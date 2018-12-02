@@ -2,7 +2,7 @@
   "name": "reprocessing-example",
   "sources": "src",
   "bs-dependencies": ["reprocessing"],
-  "package-specs": ["commonjs", "es6"],
+  "package-specs": ["commonjs", "es6-global"],
   "entries": [{
     "backend": "bytecode",
     "main-module": "Dev"
