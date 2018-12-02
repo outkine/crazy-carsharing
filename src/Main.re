@@ -1,4 +1,5 @@
 open Reprocessing;
+module KeySet = Reprocessing_Common.KeySet;
 
 let width = 15;
 let height = 12;
@@ -11,11 +12,7 @@ let absDecrease = (n, decrease) => {
   let res = n -. decrease *. sign(n);
   sign(res) != sign(n) ? 0. : res;
 };
-
 let lerp = (n1, n2, t) => (1. -. t) *. n1 +. t *. n2;
-
-let keyDown = (keyCode, env: Reprocessing_Common.glEnv) =>
-  Reprocessing_Common.KeySet.mem(keyCode, env.keyboard.down);
 
 class mob (x, y, spritesheet, texPos) = {
   as _;
@@ -55,12 +52,33 @@ let turnSignificance = 0.03;
 
 class player (x, y, spritesheet, texPos) = {
   inherit (class mob)(x, y, spritesheet, texPos);
+  /* Instance */
   val mutable velocityX = 0.;
   val mutable velocityY = 0.;
+  /* Public */
   pub turn = turnDir =>
     rotation = rotation +. turnSpeed *. (turnDir == Right ? 1. : (-1.0));
   pub accelerate = () => this#increaseVelocity(acceleration);
   pub break = () => this#decreaseVelocity(breakFriction);
+  pub update = (env: glEnvT) => {
+    KeySet.iter(
+      fun
+      | Up => this#accelerate()
+      | Left => this#turn(Left)
+      | Right => this#turn(Right)
+      | Down => this#break()
+      | _ => (),
+      env.keyboard.down,
+    );
+
+    this#lerpVelocity(turnSignificance);
+    this#decreaseVelocityExpo(airResistence);
+    this#decreaseVelocity(friction);
+
+    x = x +. velocityX;
+    y = y +. velocityY;
+  };
+  /* Private */
   pri decreaseVelocity = n => {
     velocityX = absDecrease(velocityX, n);
     velocityY = absDecrease(velocityY, n);
@@ -77,27 +95,6 @@ class player (x, y, spritesheet, texPos) = {
     let velocity = sqrt(velocityX ** 2. +. velocityY ** 2.);
     velocityX = lerp(velocityX, cos(rotation) *. velocity, n);
     velocityY = lerp(velocityY, sin(rotation) *. velocity, n);
-  };
-  pub update = env => {
-    if (keyDown(Up, env)) {
-      this#accelerate();
-    };
-    if (keyDown(Left, env)) {
-      this#turn(Left);
-    };
-    if (keyDown(Right, env)) {
-      this#turn(Right);
-    };
-    if (keyDown(Down, env)) {
-      this#break();
-    };
-
-    this#lerpVelocity(turnSignificance);
-    this#decreaseVelocityExpo(airResistence);
-    this#decreaseVelocity(friction);
-
-    x = x +. velocityX;
-    y = y +. velocityY;
   };
 };
 
