@@ -1,21 +1,31 @@
-open Reprocessing;
+open Reprocessing
 
-let width = 15;
-let height = 12;
-let scale = 3;
-let screen_width = 1920;
-let screen_height = 1080;
+let width = 15
+let height = 12
+let scale = 3
+let screen_width = 1920
+let screen_height = 1080
 
-let keyDown = (keyCode, env : Reprocessing_Common.glEnv) =>
-  Reprocessing_Common.KeySet.mem(keyCode, env.keyboard.down);
+
+let sign = (n) => n < 0. ? -1. : 1.
+let absDecrease = (n, decrease) => {
+  let res = n -. decrease *. sign(n)
+  sign(res) != sign(n) ? 0. : res
+}
+
+let lerp = (n1, n2, t) => (1. -. t) *. n1 +. t *. n2
+
+let keyDown = (keyCode, env : Reprocessing_Common.glEnv) => {
+  Reprocessing_Common.KeySet.mem(keyCode, env.keyboard.down)
+};
 
 class mob (x, y, spritesheet, texPos) = {
   as _;
-  val mutable x: int = x;
-  val mutable y: int = y;
+  val mutable x: float = x;
+  val mutable y: float = y;
   val mutable rotation = 0.;
   pub draw = env => {
-    Draw.translate(~x=float_of_int(x), ~y=float_of_int(y), env);
+    Draw.translate(~x, ~y, env);
     Draw.rotate(rotation, env);
     Draw.translate(
       ~x=(-1.) *. float_of_int(width * scale) /. 2.,
@@ -38,20 +48,44 @@ class mob (x, y, spritesheet, texPos) = {
 type direction =
   | Left
   | Right;
-
-let turnSpeed = Constants.pi *. 0.01;
+let turnSpeed = Constants.pi *. 0.03;
+let friction = 0.2;
+let airResistence = 0.0001;
+let acceleration = 1.;
+let breakFriction = 0.4;
+let turnSignificance = 0.03;
 
 class player (x, y, spritesheet, texPos) = {
-  inherit (class mob)(x, y, spritesheet, texPos);
-  val mutable velocity = 0.;
-  pub turn = turnDir =>
-    rotation = rotation +. turnSpeed *. (turnDir == Right ? 1. : (-1.0));
-  pub accelerate = () => velocity = velocity +. 1.;
+  inherit mob(x, y, spritesheet, texPos);
+  val mutable velocityX = 0.;
+  val mutable velocityY = 0.;
+
+  pub turn = turnDir => {
+    rotation = rotation +. turnSpeed *. (turnDir == Right ? 1. : (-1.0))
+  };
+  pub accelerate = () => {
+    this#increaseVelocity(acceleration)
+  };
   pub break = () => {
-    velocity = velocity *. 0.95;
-    if (velocity < 0.1) {
-      velocity = 0.;
-    };
+    this#decreaseVelocity(breakFriction)
+  };
+
+  pri decreaseVelocity = (n) => {
+    velocityX = absDecrease(velocityX, n)
+    velocityY = absDecrease(velocityY, n)
+  };
+  pri decreaseVelocityExpo = (n) => {
+    velocityX = velocityX -. velocityX ** 3. *. n
+    velocityY = velocityY -. velocityY ** 3. *. n
+  };
+  pri increaseVelocity = (n) => {
+    velocityX = velocityX +. cos(rotation) *. n
+    velocityY = velocityY +. sin(rotation) *. n
+  };
+  pri lerpVelocity = (n) => {
+    let velocity = sqrt(velocityX ** 2. +. velocityY ** 2.)
+    velocityX = lerp(velocityX, cos(rotation) *. velocity, n)
+    velocityY = lerp(velocityY, sin(rotation) *. velocity, n)
   };
   pub update = (env) => {
     if (keyDown(Up, env)) this#accelerate()
@@ -59,12 +93,16 @@ class player (x, y, spritesheet, texPos) = {
     if (keyDown(Right, env)) this#turn(Right)
     if (keyDown(Down, env)) this#break()
 
-    x = x + int_of_float(cos(rotation) *. velocity);
-    y = y + int_of_float(sin(rotation) *. velocity);
-  };
-};
+    this#lerpVelocity(turnSignificance)
+    this#decreaseVelocityExpo(airResistence)
+    this#decreaseVelocity(friction)
 
-type state = {player};
+    x = x +. velocityX
+    y = y +. velocityY
+  };
+}
+
+type state = {player}
 
 let setup = (assetDir, env) => {
   Env.size(~width=screen_width, ~height=screen_height, env);
@@ -74,7 +112,7 @@ let setup = (assetDir, env) => {
       ~isPixel=true,
       env,
     );
-  {player: (new player)(200, 200, spritesheet, (0, 0))};
+  {player: (new player)(200., 200., spritesheet, (0, 0))};
 };
 
 let keyPressed = (state, env) => {
