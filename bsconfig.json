@@ -16,5 +16,6 @@
     "backend": "native",
     "main-module": "Dev"
   }],
-  "refmt": 3
+  "refmt": 3,
+  "generate-merlin": false
 }
