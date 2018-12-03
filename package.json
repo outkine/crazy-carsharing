@@ -2,10 +2,15 @@
   "name": "reprocessing-example",
   "scripts": {
     "start:byte": "bsb -make-world -backend bytecode && ./lib/bs/bytecode/dev.byte",
-    "start:web": "bsb -make-world -backend js -w && NODE_ENV=development webpack-dev-server --hot",
-    "clean": "bsb -clean-world"
+    "start:web": "bsb -make-world -backend js -w",
+    "start:server": "NODE_ENV=development webpack-dev-server --hot",
+    "clean": "bsb -clean-world",
+    "atdgen": "atdgen -t src/tilemap.atd && atdgen -bs src/tilemap.atd"
   },
   "dependencies": {
+    "@ahrefs/bs-atdgen-codec-runtime": "^1.1.0",
+    "@glennsl/bs-json": "^3.0.0",
+    "bs-fetch": "^0.3.1",
     "reprocessing": "0.2.0"
   },
   "devDependencies": {

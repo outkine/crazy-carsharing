@@ -1,0 +1,15 @@
+type tilemap = {
+  layers: layer list;
+  height: int;
+  width: int;
+  tilesets: tileset list;
+}
+
+type layer = {
+  data: int list;
+}
+
+type tileset = {
+  firstgid: int;
+  source: string;
+}

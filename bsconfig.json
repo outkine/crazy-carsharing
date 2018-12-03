@@ -1,7 +1,7 @@
 {
   "name": "reprocessing-example",
   "sources": "src",
-  "bs-dependencies": ["reprocessing"],
+  "bs-dependencies": ["reprocessing", "bs-fetch", "@ahrefs/bs-atdgen-codec-runtime"],
   "package-specs": ["commonjs", "es6-global"],
   "entries": [{
     "backend": "bytecode",

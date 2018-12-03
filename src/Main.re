@@ -1,4 +1,5 @@
 open Reprocessing;
+module Decode = Atdgen_codec_runtime.Decode;
 module KeySet = Reprocessing_Common.KeySet;
 
 let width = 15;
@@ -13,6 +14,14 @@ let absDecrease = (n, decrease) => {
   sign(res) != sign(n) ? 0. : res;
 };
 let lerp = (n1, n2, t) => (1. -. t) *. n1 +. t *. n2;
+
+class tilemap = {
+  as _;
+  pub load = (json: Js.Json.t) => {
+    let decodedJson = Decode.decode(Tilemap_bs.read_tilemap, json);
+    Js.log(decodedJson.layers);
+  };
+};
 
 class mob (x, y, spritesheet, texPos) = {
   as _;
@@ -98,7 +107,10 @@ class player (x, y, spritesheet, texPos) = {
   };
 };
 
-type state = {player};
+type state = {
+  player,
+  tilemap,
+};
 
 let setup = (assetDir, env) => {
   Env.size(~width=screen_width, ~height=screen_height, env);
@@ -108,7 +120,16 @@ let setup = (assetDir, env) => {
       ~isPixel=true,
       env,
     );
-  {player: (new player)(200., 200., spritesheet, (0, 0))};
+  let tilemap = new tilemap;
+  let _ =
+    Js.Promise.(
+      Fetch.fetch(Filename.concat(assetDir, "tilemap.json"))
+      |> then_(Fetch.Response.json)
+      |> then_(json => tilemap#load(json) |> resolve)
+    );
+
+  let player = (new player)(200., 200., spritesheet, (0, 0));
+  {player, tilemap};
 };
 
 let keyPressed = (state, env) => {
