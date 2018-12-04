@@ -1,19 +1,49 @@
 (* Auto-generated from "tilemap.atd" *)
 [@@@ocaml.warning "-27-32-35-39"]
 
-type tileset = Tilemap_t.tileset = {firstgid: int; source: string}
+type tilesheet = Tilemap_t.tilesheet =
+  {tileheight: int; tilewidth: int; columns: int}
+
+type tileset = Tilemap_t.tileset = {firstgid: int}
 type layer = Tilemap_t.layer = {data: int list}
 
 type tilemap = Tilemap_t.tilemap =
   {layers: layer list; height: int; width: int; tilesets: tileset list}
 
+let write_tilesheet =
+  Atdgen_codec_runtime.Encode.make (fun (t : tilesheet) ->
+      Atdgen_codec_runtime.Encode.obj
+        [ Atdgen_codec_runtime.Encode.field Atdgen_codec_runtime.Encode.int
+            ~name:"tileheight" t.tileheight
+        ; Atdgen_codec_runtime.Encode.field Atdgen_codec_runtime.Encode.int
+            ~name:"tilewidth" t.tilewidth
+        ; Atdgen_codec_runtime.Encode.field Atdgen_codec_runtime.Encode.int
+            ~name:"columns" t.columns ] )
+
+let read_tilesheet =
+  Atdgen_codec_runtime.Decode.make (fun json ->
+      ( { tileheight=
+            Atdgen_codec_runtime.Decode.decode
+              ( Atdgen_codec_runtime.Decode.int
+              |> Atdgen_codec_runtime.Decode.field "tileheight" )
+              json
+        ; tilewidth=
+            Atdgen_codec_runtime.Decode.decode
+              ( Atdgen_codec_runtime.Decode.int
+              |> Atdgen_codec_runtime.Decode.field "tilewidth" )
+              json
+        ; columns=
+            Atdgen_codec_runtime.Decode.decode
+              ( Atdgen_codec_runtime.Decode.int
+              |> Atdgen_codec_runtime.Decode.field "columns" )
+              json }
+        : tilesheet ) )
+
 let write_tileset =
   Atdgen_codec_runtime.Encode.make (fun (t : tileset) ->
       Atdgen_codec_runtime.Encode.obj
         [ Atdgen_codec_runtime.Encode.field Atdgen_codec_runtime.Encode.int
-            ~name:"firstgid" t.firstgid
-        ; Atdgen_codec_runtime.Encode.field Atdgen_codec_runtime.Encode.string
-            ~name:"source" t.source ] )
+            ~name:"firstgid" t.firstgid ] )
 
 let read_tileset =
   Atdgen_codec_runtime.Decode.make (fun json ->
@@ -21,11 +51,6 @@ let read_tileset =
             Atdgen_codec_runtime.Decode.decode
               ( Atdgen_codec_runtime.Decode.int
               |> Atdgen_codec_runtime.Decode.field "firstgid" )
-              json
-        ; source=
-            Atdgen_codec_runtime.Decode.decode
-              ( Atdgen_codec_runtime.Decode.string
-              |> Atdgen_codec_runtime.Decode.field "source" )
               json }
         : tileset ) )
 

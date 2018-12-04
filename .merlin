@@ -7,10 +7,10 @@ FLG -nostdlib -color always -no-alias-deps
 FLG -w -30-40+6+7+27+32..39+44+45+101
 S /home/anton/code/game/crazy-rideshare/node_modules/reprocessing/lib/ocaml/js
 B /home/anton/code/game/crazy-rideshare/node_modules/reprocessing/lib/ocaml/js
-S /home/anton/code/game/crazy-rideshare/node_modules/bs-fetch/lib/ocaml/js
-B /home/anton/code/game/crazy-rideshare/node_modules/bs-fetch/lib/ocaml/js
 S /home/anton/code/game/crazy-rideshare/node_modules/@ahrefs/bs-atdgen-codec-runtime/lib/ocaml/js
 B /home/anton/code/game/crazy-rideshare/node_modules/@ahrefs/bs-atdgen-codec-runtime/lib/ocaml/js
+S /home/anton/code/game/crazy-rideshare/node_modules/@aantron/repromise/lib/ocaml/js
+B /home/anton/code/game/crazy-rideshare/node_modules/@aantron/repromise/lib/ocaml/js
 S src
 B lib/bs/js/src
 ####BSB GENERATED: NO EDIT}

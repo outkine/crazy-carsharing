@@ -2,6 +2,11 @@ open Reprocessing
 module Decode = Atdgen_codec_runtime.Decode
 module KeySet = Reprocessing_Common.KeySet
 
+type response
+
+external fetch : string -> response Repromise.t = "fetch" [@@bs.val]
+external json : response -> Js.Json.t Repromise.t = "" [@@bs.send]
+
 let width = 15
 let height = 12
 let scale = 3
@@ -18,6 +23,8 @@ let lerp n1 n2 t = ((1. -. t) *. n1) +. (t *. n2)
 class tilemap =
   object
     method load (json : Tilemap_t.tilemap) = print_endline "asd"
+
+    method loadSheet (json : Tilemap_t.tilesheet) = print_endline "d"
   end
 
 let ( >> ) f g x = g (f x)
@@ -46,7 +53,7 @@ type direction = Left | Right
 let turnSpeed = Constants.pi *. 0.03
 let friction = 0.2
 let airResistence = 0.0001
-let acceleration = 10.
+let acceleration = 1.
 let breakFriction = 0.4
 let turnSignificance = 0.03
 
@@ -109,22 +116,14 @@ let setup assetDir env =
       ~isPixel:true env
   in
   let tilemap = new tilemap in
-  let _ =
-    let open Js.Promise in
-    Fetch.fetch (Filename.concat assetDir "tilemap.json")
-    |> then_ Fetch.Response.json
-    |> then_ (Decode.decode Tilemap_bs.read_tilemap >> tilemap#load >> resolve)
+  let files =
+    [ ("tilemap.json", Tilemap_bs.read_tilemap >> tilemap#load)
+    ; ("roadsheet.json", Tilemap_bs.read_tilesheet >> tilemap#loadSheet) ]
   in
-  (*
-  let _ =
-    let open Js.Promise in
-    [|"tilemap.json"; "roadsheet.json"|]
-    |> Array.map (Filename.concat assetDir >> Fetch.fetch)
-    |> all
-    |> then_ Array.map Fetch.Response.json
-    |> then_ (Decode.decode Tilemap_bs.read_tilemap >> tilemap#load >> resolve)
-  in
-  *)
+  fst (List.split files)
+  |> List.map (Filename.concat assetDir >> fetch >> Repromise.andThen json)
+  |> Repromise.all
+  |> Repromise.wait (List.map2 ( @@ ) (snd (List.split files)) >> ignore);
   let player = new player 200. 200. spritesheet (0, 0) in
   {player; tilemap}
 

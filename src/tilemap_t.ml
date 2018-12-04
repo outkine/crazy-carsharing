@@ -1,7 +1,8 @@
 (* Auto-generated from "tilemap.atd" *)
 [@@@ocaml.warning "-27-32-35-39"]
 
-type tileset = {firstgid: int; source: string}
+type tilesheet = {tileheight: int; tilewidth: int; columns: int}
+type tileset = {firstgid: int}
 type layer = {data: int list}
 
 type tilemap =

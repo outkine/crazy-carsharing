@@ -1,7 +1,7 @@
 {
   "name": "reprocessing-example",
   "sources": "src",
-  "bs-dependencies": ["reprocessing", "bs-fetch", "@ahrefs/bs-atdgen-codec-runtime"],
+  "bs-dependencies": ["reprocessing", "@ahrefs/bs-atdgen-codec-runtime", "@aantron/repromise"],
   "package-specs": ["commonjs", "es6-global"],
   "entries": [{
     "backend": "bytecode",
@@ -17,5 +17,5 @@
     "main-module": "Dev"
   }],
   "refmt": 3,
-  "generate-merlin": false
+  // "generate-merlin": false
 }
