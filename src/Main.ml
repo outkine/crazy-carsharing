@@ -20,11 +20,10 @@ let absDecrease n decrease =
 
 let lerp n1 n2 t = ((1. -. t) *. n1) +. (t *. n2)
 
-class tilemap =
+class tilemap tilemapImg tilemapObj tilesheetObj =
   object
-    method load (json : Tilemap_t.tilemap) = print_endline "asd"
-
-    method loadSheet (json : Tilemap_t.tilesheet) = print_endline "d"
+    initializer
+      tilemapObj.layers
   end
 
 let ( >> ) f g x = g (f x)
@@ -108,33 +107,30 @@ class player x y spritesheet texPos =
 
 type state = {player: player; tilemap: tilemap}
 
-let setup assetDir env =
-  Env.size ~width:screen_width ~height:screen_height env;
-  let spritesheet =
-    Draw.loadImage
-      ~filename:(Filename.concat assetDir "spritesheet.png")
-      ~isPixel:true env
-  in
-  let tilemap = new tilemap in
-  let files =
-    [ ("tilemap.json", Tilemap_bs.read_tilemap >> tilemap#load)
-    ; ("roadsheet.json", Tilemap_bs.read_tilesheet >> tilemap#loadSheet) ]
-  in
-  fst (List.split files)
-  |> List.map (Filename.concat assetDir >> fetch >> Repromise.andThen json)
-  |> Repromise.all
-  |> Repromise.wait (List.map2 ( @@ ) (snd (List.split files)) >> ignore);
-  let player = new player 200. 200. spritesheet (0, 0) in
-  {player; tilemap}
-
-let keyPressed state env =
-  (match Env.keyCode env with Escape -> exit 0 | _ -> ());
-  state
-
 let draw state env =
   (state.player)#update env;
   Draw.background (Utils.color ~r:255 ~g:255 ~b:255 ~a:255) env;
   (state.player)#draw env;
   state
 
-let run assetDir = run ~setup:(setup assetDir) ~draw ~keyPressed ()
+let setup assetDir tilemap tilesheet env =
+  Env.size ~width:screen_width ~height:screen_height env;
+  let loadImage name =
+    Draw.loadImage
+      ~filename:(Filename.concat assetDir (name ^ ".png"))
+      ~isPixel:true env
+  in
+  let roadsheetImg = loadImage "roadsheet" in
+  let tilemapObj = Tilemap_bs.read_tilemap tilemap in
+  let tilesheetObj = Tilemap_bs.read_tilesheet tilesheet in
+  let tilemap = new tilemap roadsheetImg tilemapObj tilesheetObj in
+  let spritesheetImg = loadImage "spritesheet" in
+  let player = new player 200. 200. spritesheetImg (0, 0) in
+  {player; tilemap}
+
+let keyPressed state env =
+  (match Env.keyCode env with Escape -> exit 0 | _ -> ());
+  state
+
+let run assetDir tilemap tilesheet =
+  run ~setup:(setup assetDir tilemap tilesheet) ~draw ~keyPressed ()
