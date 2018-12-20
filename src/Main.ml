@@ -22,8 +22,6 @@ let lerp n1 n2 t = ((1. -. t) *. n1) +. (t *. n2)
 
 class tilemap tilemapImg tilemapObj tilesheetObj =
   object
-    initializer
-      tilemapObj.layers
   end
 
 let ( >> ) f g x = g (f x)

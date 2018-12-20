@@ -4,6 +4,7 @@
     "start:byte": "bsb -make-world -backend bytecode && ./lib/bs/bytecode/dev.byte",
     "start:web": "bsb -make-world -backend js -w",
     "start:server": "NODE_ENV=development webpack-dev-server --hot",
+    "build": "bsb -make-world -backend js && NODE_ENV=production webpack",
     "clean": "bsb -clean-world",
     "atdgen": "atdgen -t src/tilemap.atd && atdgen -bs src/tilemap.atd"
   },
